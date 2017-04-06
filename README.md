@@ -19,3 +19,5 @@ Open the Excel sheet and add these lines to the Budget Entry sheet module from t
 Private Sub Worksheet_Change(ByVal Target As Range)  
   ActiveSheet.Calculate  
 End Sub  
+
+All done!
