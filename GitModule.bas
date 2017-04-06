@@ -31,16 +31,15 @@ Select Case vbeComponentType
     Case Else
         ToFileExtension = vbNullString
     End Select
- 
 End Function
-Public Sub RemoveAllModules()
+Private Sub RemoveAllModules()
 Dim project As VBProject
 Set project = Application.VBE.ActiveVBProject
 Dim component As VBComponent
 
 For Each component In project.VBComponents
-    If Not component.Name = "DevTools" And (component.Type = vbext_ct_ClassModule Or component.Type = vbext_ct_StdModule) Then
-        project.VBComponents.Remove comp
+    If Not component.Name = "GitModule" And (component.Type = vbext_ct_ClassModule Or component.Type = vbext_ct_StdModule) Then
+        project.VBComponents.Remove component
     End If
 Next
 
@@ -48,17 +47,23 @@ End Sub
 Public Sub ImportSourceFiles()
 
 Dim folder As String
+Dim moduleName As String
 Dim fullPath As String
 
-folder = Application.ActiveWorkbook.Path + "\"
-fullPath = Dir(folder + "*.bas")
+RemoveAllModules
 
-'While fullPath <> vbNullString
-    For i = 0 To 10
-        Debug.Print fullPath
-        Debug.Print folder + fullPath
-        fullPath = Dir(folder + "*.bas")
-    Next i
+folder = Application.ActiveWorkbook.Path + "\"
+moduleName = Dir(folder + "*.bas")
+
+    While moduleName <> ""
+        fullPath = folder + moduleName
+        If moduleName <> "GitModule.bas" Then
+            Application.VBE.ActiveVBProject.VBComponents.Import fullPath
+            Debug.Print fullPath
+        End If
+        moduleName = Dir
+    Wend
+    
     
 End Sub
 

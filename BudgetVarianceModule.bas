@@ -23,9 +23,7 @@ Dim BudgetEntryTotalColumn As Integer
 Dim TotalSections As Integer
 Sub Submit_Entry()
 
-Application.Calculate
-Application.Calculation = xlCalculationManual
-Application.ScreenUpdating = False
+OnEntry
 
 'Cell start and end references for budget matrix. For modularity
 rowStartBE = Array(7, 34, 51, 58, 86, 102, 108, 116, 126, 131)
@@ -55,7 +53,7 @@ SecondEntrySheet = 7
 If Sheets.Count > Budget_EntrySheet Then
     If Sheets(FirstEntrySheet).Name = Format(DateTime.Now, "MMddyy_hhmmss") + "E" Then
         MsgBox "Slow Down!"
-        Call BeforeExit
+        BeforeExit
         Exit Sub
     End If
 End If
@@ -64,20 +62,18 @@ For i = 0 To TotalSections - 1
     IsValid = CheckRangeIsNumeric(Budget_EntrySheet, CInt(rowStartBE(i)), CInt(columnStartBE(i)), CInt(rowEndBE(i) - rowStartBE(i) + 1), CInt(columnEndBE(i) - columnStartBE(i) + 1))
     If Not IsValid Then
         MsgBox "Please check that there are only numeric values in your entry!"
-        Call BeforeExit
+        BeforeExit
         Exit Sub
     End If
 Next i
 
-Call CreateEntryAndDifference
+CreateEntryAndDifference
 
-Call CalculateDifference
+CalculateDifference
 
-Call BeforeExit
+BeforeExit
+
 End Sub
-Public Function GetSheetName(number As Long) As String
-    GetSheetName = Sheets(number).Name
-End Function
 'return the string representation a cell reference 'cell' with its row shifted by 'shift' amount
 Public Function AdjustCell(cell As Range, shift As Long) As String
     'must tell VBA what type of variable this is because it is passed to another function
@@ -116,7 +112,7 @@ Function OnlyNumbers(alphaNum As String) As Double
     'return the numbers as a value (of type Double)
     OnlyNumbers = Val(numbers)
 End Function
-Public Function CalculateDifference()
+Private Sub CalculateDifference()
     
 
     If Sheets.Count < 6 Then
@@ -136,7 +132,7 @@ Public Function CalculateDifference()
             CInt(rowEndBE(i) - rowStartBE(i) + 1))
         Next i
     
-        Exit Function
+        Exit Sub
     End If
     
     For i = 0 To TotalSections - 1
@@ -145,75 +141,8 @@ Public Function CalculateDifference()
         CInt(rowEndBE(i) - rowStartBE(i) + 1), CInt(columnEndBE(i) - columnStartBE(i) + 1))
     Next i
 
-End Function
-Function CopyRowOfFiniteLength(Sheet1 As Integer, sheet2 As Integer, row1Start As Integer, row2Start As Integer, column1 As Integer, column2 As Integer, numberOfRows As Integer)
-    For i = 0 To numberOfRows - 1
-        Sheets(Sheet1).Cells(row1Start + i, column1).value = Sheets(sheet2).Cells(row2Start + i, column2).value
-    Next i
-End Function
-Function SetRangeToZero(sheet As Integer, rowStart As Integer, columnStart As Integer, rowEnd As Integer, columnEnd As Integer)
-    Sheets(sheet).Range(Cells(rowStart, columnStart), Cells(rowEnd, columnEnd)).value = 0
-End Function
-Function GetDifferenceBetweenTwoRanges(Sheet1 As Integer, sheet2 As Integer, row1Start As Integer, row2Start As Integer, column1Start As Integer, column2Start As Integer, numberOfRows As Integer, numberOfColumns As Integer)
-
-    For i = 0 To numberOfRows - 1
-        For j = 0 To numberOfColumns - 1
-            difference = -(CDbl(Sheets(sheet2).Cells(row2Start + i, column2Start + j)) - CDbl(Sheets(Sheet1).Cells(row1Start + i, column1Start + j)))
-            
-            If Abs(difference) < 0.01 Then
-                difference = 0#
-                Call WriteValueToCell(FirstDifferenceSheet, row1Start + i, column2Start + j, CDbl(difference))
-            Else
-                'Application.ScreenUpdating = True
-                Sheets(FirstDifferenceSheet).Activate
-                Cells(row1Start + i, column2Start + j).Activate
-                
-                
-                'Comment = InputBox("This budget value is different from the last, why is that?")
-                'If Comment = vbNullString Then
-                    'Comment = "User declined to comment"
-                'End If
-                
-                Sheets(FirstEntrySheet).Cells(row1Start + i, column2Start + j).AddComment Comment
-                Call WriteValueToCell(FirstDifferenceSheet, row1Start + i, column2Start + j, CDbl(difference))
-                Application.ScreenUpdating = False
-            End If
-        Next j
-    Next i
-End Function
-Function CheckRangeIsNumeric(sheet As Integer, rowStart As Integer, columnStart As Integer, numberOfRows As Integer, numberOfColumns As Integer) As Boolean
-    CheckRangeIsNumeric = True
-    For i = 0 To numberOfRows - 1
-        For j = 0 To numberOfColumns - 1
-            If Not IsNumeric(Sheets(sheet).Cells(rowStart + i, columnStart + j).value) Then
-                    CheckRangeIsNumeric = False
-                    Application.ScreenUpdating = True
-                    Sheets(Budget_EntrySheet).Activate
-                    Cells(rowStart + i, columnStart + j).Activate
-                Exit Function
-            End If
-        Next j
-    Next i
-End Function
-Function WriteValueToCell(sheet As Integer, row As Integer, column As Integer, value As Double)
-    Sheets(sheet).Cells(row, column).value = value
-End Function
-Sub TurnOffAutomaticCalculation()
-Application.Calculation = xlCalculationManual
 End Sub
-Sub TurnOnAutomaticCalculation()
-Application.Calculation = xlCalculationAutomatic
-End Sub
-Sub Calculate()
-Application.Calculate
-End Sub
-Function BeforeExit()
-Sheets(Budget_EntrySheet).Activate
-'Application.Calculation = xlCalculationAutomatic
-Application.ScreenUpdating = True
-Application.Calculate
-End Function
-Function CreateEntryAndDifference()
+Private Sub CreateEntryAndDifference()
 'Activate the Budget_Entry sheet and copy as is
 Sheets(Budget_EntrySheet).Activate
 ActiveSheet.Copy After:=Sheets(Budget_EntrySheet)
@@ -227,4 +156,42 @@ Entry.DrawingObjects.Delete
 Entry.Copy After:=Sheets(Budget_EntrySheet)
 Set difference = Sheets(FirstDifferenceSheet)
 difference.Name = Replace(Entry.Name, "E", "D")
+End Sub
+Private Function GetDifferenceBetweenTwoRanges(Sheet1 As Integer, sheet2 As Integer, row1Start As Integer, row2Start As Integer, column1Start As Integer, column2Start As Integer, numberOfRows As Integer, numberOfColumns As Integer)
+
+    For i = 0 To numberOfRows - 1
+        For j = 0 To numberOfColumns - 1
+            difference = -(CDbl(Sheets(sheet2).Cells(row2Start + i, column2Start + j)) - CDbl(Sheets(Sheet1).Cells(row1Start + i, column1Start + j)))
+            
+            If Abs(difference) < 0.01 Then
+                difference = 0#
+                Call WriteValueToCell(Sheet1, row1Start + i, column2Start + j, CDbl(difference))
+            Else
+                'Application.ScreenUpdating = True
+                Sheets(FirstDifferenceSheet).Activate
+                Cells(row1Start + i, column2Start + j).Activate
+                
+                
+                'Comment = InputBox("This budget value is different from the last, why is that?")
+                'If Comment = vbNullString Then
+                    'Comment = "User declined to comment"
+                'End If
+                
+                'Sheets(FirstEntrySheet).Cells(row1Start + i, column2Start + j).AddComment Comment
+                Call WriteValueToCell(Sheet1, row1Start + i, column2Start + j, CDbl(difference))
+                Application.ScreenUpdating = False
+            End If
+        Next j
+    Next i
 End Function
+Private Sub BeforeExit()
+Sheets(Budget_EntrySheet).Activate
+TurnOffAutomaticCalculation
+TurnOnScreenUpdating
+Calculate
+End Sub
+Private Sub OnEntry()
+TurnOffAutomaticCalculation
+TurnOffScreenUpdating
+Calculate
+End Sub
