@@ -42,41 +42,38 @@ ActualSheet = 2
 Budget_EntrySheet = 3
 FirstDifferenceSheet = 4
 
-ScrubSBESheet
+ScrubSBESheets
 
 DeleteAllSavedEntries
 
 BeforeExit
 
 End Sub
-Private Sub ScrubSBESheet()
+Private Sub ScrubSBESheets()
 
 For i = 0 To TotalSections - 1
         Call SetRangeToZero(Budget_EntrySheet, CInt(rowStartBE(i)), CInt(columnStartBE(i)), CInt(rowEndBE(i)), CInt(columnEndBE(i)))
-        'Call SetRangeToZero(SummarySheet, CInt(rowStartS(i)), CInt(columnStartS(i)), CInt(rowEndS(i)), CInt(columnEndS(i)))
         Call SetRangeToZero(SummarySheet, CInt(rowStartS(i)), 18, CInt(rowEndS(i)), 18)
 Next i
-Application.Calculate
+
 End Sub
 Private Sub DeleteAllSavedEntries()
 
-If Sheets.Count > Budget_EntrySheet Then
-    For i = 4 To Sheets.Count
-        Sheets(FirstDifferenceSheet).Delete
-    Next i
-End If
+While Sheets.Count > Budget_EntrySheet
+    Sheets(FirstDifferenceSheet).Delete
+Wend
 
 End Sub
 Private Sub BeforeExit()
-Sheets(ActualSheet).Activate
-TurnOnAutomaticCalculation
-TurnOnScreenUpdating
-TurnOnDisplayAlerts
-Calculate
+    Sheets(ActualSheet).Activate
+    Calculate
+    TurnOffAutomaticCalculation
+    Call TurnOnScreenUpdating
+    Call TurnOnDisplayAlerts
 End Sub
 Private Sub OnEntry()
-Calculate
-TurnOffAutomaticCalculation
-TurnOffScreenUpdating
-TurnOffDisplayAlerts
+    Calculate
+    TurnOffAutomaticCalculation
+    Call TurnOffScreenUpdating
+    Call TurnOffDisplayAlerts
 End Sub

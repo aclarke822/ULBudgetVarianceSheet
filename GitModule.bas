@@ -50,6 +50,8 @@ Dim folder As String
 Dim moduleName As String
 Dim fullPath As String
 
+If MsgBox("CAUTION!! Are you sure? This could erase all VBA modules!", vbYesNo) = vbNo Then Exit Sub
+
 RemoveAllModules
 
 folder = Application.ActiveWorkbook.Path + "\"

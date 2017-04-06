@@ -165,9 +165,9 @@ Private Function GetDifferenceBetweenTwoRanges(Sheet1 As Integer, sheet2 As Inte
             
             If Abs(difference) < 0.01 Then
                 difference = 0#
-                Call WriteValueToCell(Sheet1, row1Start + i, column2Start + j, CDbl(difference))
+                Call WriteValueToCell(FirstDifferenceSheet, row1Start + i, column2Start + j, CDbl(difference))
             Else
-                'Application.ScreenUpdating = True
+                'Call TurnOnScreenUpdating
                 Sheets(FirstDifferenceSheet).Activate
                 Cells(row1Start + i, column2Start + j).Activate
                 
@@ -178,20 +178,34 @@ Private Function GetDifferenceBetweenTwoRanges(Sheet1 As Integer, sheet2 As Inte
                 'End If
                 
                 'Sheets(FirstEntrySheet).Cells(row1Start + i, column2Start + j).AddComment Comment
-                Call WriteValueToCell(Sheet1, row1Start + i, column2Start + j, CDbl(difference))
-                Application.ScreenUpdating = False
+                Call WriteValueToCell(FirstDifferenceSheet, row1Start + i, column2Start + j, CDbl(difference))
+                Call TurnOffScreenUpdating
+            End If
+        Next j
+    Next i
+End Function
+Public Function CheckRangeIsNumeric(sheet As Integer, rowStart As Integer, columnStart As Integer, numberOfRows As Integer, numberOfColumns As Integer) As Boolean
+    CheckRangeIsNumeric = True
+    For i = 0 To numberOfRows - 1
+        For j = 0 To numberOfColumns - 1
+            If Not IsNumeric(Sheets(sheet).Cells(rowStart + i, columnStart + j).value) Then
+                    CheckRangeIsNumeric = False
+                    Call TurnOnScreenUpdating
+                    Sheets(Budget_EntrySheet).Activate
+                    Cells(rowStart + i, columnStart + j).Activate
+                Exit Function
             End If
         Next j
     Next i
 End Function
 Private Sub BeforeExit()
 Sheets(Budget_EntrySheet).Activate
-TurnOffAutomaticCalculation
-TurnOnScreenUpdating
-Calculate
+    Calculate
+    TurnOffAutomaticCalculation
+    Call TurnOnScreenUpdating
 End Sub
 Private Sub OnEntry()
-TurnOffAutomaticCalculation
-TurnOffScreenUpdating
-Calculate
+    Calculate
+    TurnOffAutomaticCalculation
+    Call TurnOffScreenUpdating
 End Sub
