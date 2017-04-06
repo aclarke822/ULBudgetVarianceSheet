@@ -18,6 +18,28 @@ Private Sub Worksheet_Change(ByVal Target As Range)
 End Sub  
 8. Test it thoroughly!  
 
+TURN ON AUTOMATIC CALCULATION WHEN CLOSING SHEET
+
+1. Go to VBA Editor  
+2. Double click on ThisWorkbook under Microsoft Excel Objects  
+3. Paste this code over anything that is in there:  
+
+Private Sub Workbook_BeforeClose(Cancel As Boolean)  
+    Worksheets("Budget_Entry").Activate  
+    TurnOnAutomaticCalculation  
+End Sub  
+Private Sub Workbook_BeforeSave(ByVal SaveAsUI As Boolean, Cancel As Boolean)  
+    Worksheets("Budget_Entry").Activate  
+    TurnOnAutomaticCalculation  
+End Sub  
+Private Sub Workbook_Open()  
+    TurnOffAutomaticCalculation  
+End Sub  
+
+4. This includes some stuff that should already be in there
+5. Note that if you have multiple Excel sheets open, each one will have a Workbook within the VBA Editor
+6. Make sure you are working with the right Workbook the right file VBAProject(fileName)>Microsoft Excel Objects>ThisWorkbook
+
 Using Git:  
 
 Download Git from https://git-scm.com/download/win  
