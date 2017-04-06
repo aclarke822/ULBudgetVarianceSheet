@@ -18,6 +18,8 @@ Private Sub Worksheet_Change(ByVal Target As Range)
 End Sub  
 8. Test it thoroughly!  
 
+--------------------------------------------------------------------------------------------------------------------------------------  
+
 TURN ON AUTOMATIC CALCULATION WHEN CLOSING SHEET
 
 1. Go to VBA Editor  
@@ -39,6 +41,8 @@ End Sub
 4. This includes some stuff that should already be in there
 5. Note that if you have multiple Excel sheets open, each one will have a Workbook within the VBA Editor
 6. Make sure you are working with the right Workbook on the right file VBAProject(fileName)>Microsoft Excel Objects>ThisWorkbook
+
+--------------------------------------------------------------------------------------------------------------------------------------  
 
 Using Git:  
 
